@@ -20,18 +20,21 @@ public class Block : MonoBehaviour, ITakeDamage
         //direction = Vector2.zero;
 
         healthUI.text = health.ToString();
+
+        BlockManager.instance.AddBlock(this);
+    }
+
+    private void OnDestroy()
+    {
+        BlockManager.instance.RemoveBlock(this);
     }
 
     // Update is called once per frame
     void Update()
     {
         if (direction != Vector2.zero)
-        {
             rb.linearVelocity = direction * speed;
-        }
     }
-
-    
 
     public void TakeDamage(int damage)
     {
@@ -63,9 +66,7 @@ public class Block : MonoBehaviour, ITakeDamage
                 sharedHandler.A = this;
                 sharedHandler.B = otherBlock;
                 sharedHandler.ProcessCollision();
-            }
-
-                
+            }  
         }
     }
 }
