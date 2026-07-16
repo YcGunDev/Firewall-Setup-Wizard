@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using static UnityEngine.CullingGroup;
 
-public class Block : NetworkBehaviour, ITakeDamage
+public class Block : MonoBehaviour, ITakeDamage
 {
     public int health;
     public float speed;
@@ -17,21 +17,21 @@ public class Block : NetworkBehaviour, ITakeDamage
     [SerializeField] TextMeshProUGUI healthUI;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
-    public override void OnNetworkSpawn()
-    {
-        if (health <= 0) health = 100;
-        //speed = 0.0f;
-        //direction = Vector2.zero;
+    //public override void OnNetworkSpawn()
+    //{
+    //    if (health <= 0) health = 100;
+    //    //speed = 0.0f;
+    //    //direction = Vector2.zero;
 
-        UpdateHPUI();
+    //    UpdateHPUI();
 
-        BlockManager.instance.AddBlock(this);
-    }
+    //    BlockManager.instance.AddBlock(this);
+    //}
 
-    public override void OnNetworkDespawn()
-    {
-        BlockManager.instance.RemoveBlock(this);
-    }
+    //public override void OnNetworkDespawn()
+    //{
+    //    BlockManager.instance.RemoveBlock(this);
+    //}
 
     void Awake()
     {
@@ -44,13 +44,17 @@ public class Block : NetworkBehaviour, ITakeDamage
         BlockManager.instance.AddBlock(this);
     }
 
-    public override void OnDestroy()
+    //public override void OnDestroy()
+    //{
+    //    base.OnDestroy();
+    //    BlockManager.instance.RemoveBlock(this);
+    //}
+
+    public void OnDestroy()
     {
-        base.OnDestroy();
         BlockManager.instance.RemoveBlock(this);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (direction != Vector2.zero)

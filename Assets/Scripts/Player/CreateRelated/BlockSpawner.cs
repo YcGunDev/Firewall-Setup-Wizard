@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class BlockSpawner : NetworkBehaviour
+public class BlockSpawner : MonoBehaviour
 {
     float colliderTimer = 0.03f;
     float colliderDelay = 0.03f;
