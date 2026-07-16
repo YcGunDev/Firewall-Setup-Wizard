@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class BlockSpawner : MonoBehaviour
+public class BlockSpawner : NetworkBehaviour
 {
     float colliderTimer = 0.03f;
     float colliderDelay = 0.03f;
@@ -86,6 +87,7 @@ public class BlockSpawner : MonoBehaviour
         {
             if (colliderTimer <= 0)
             {
+                //need to replicate instantiation here
                 Instantiate(block, transform.position, transform.rotation);
                 colliderTimer = colliderDelay;
             }
@@ -95,10 +97,20 @@ public class BlockSpawner : MonoBehaviour
         transform.position = transform.position + Random.insideUnitSphere * 0.001f;
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        //colliderTimer = colliderDelay;
-    }
+    //right idea but i think there is a different method to spawning objects across the network
+    //https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.5/manual/basics/object-spawning.html
+
+    //[Rpc(SendTo.ClientsAndHost)]
+    //void TestClientRpc(ulong sourceNetworkObjectId)
+    //{
+    //    //Debug.Log($"Client Received the RPC #{value} on NetworkObject #{sourceNetworkObjectId}");
+
+    //    //Only send an RPC to the server on the client that owns the NetworkObject that owns this NetworkBehaviour instance
+    //    if (IsOwner)
+    //    {
+    //        Instantiate(block, transform.position, transform.rotation);
+    //    }
+    //}
 
 
 }

@@ -74,8 +74,6 @@ public class Move : MonoBehaviour
                 selectTool.selectedBlocks[i].UpdateHPUI();
             }
 
-
-            Debug.Log("CALCULATE");
             Destroy(currentArrowStart.gameObject);
             Destroy(currentArrowEnd.gameObject);
         }
