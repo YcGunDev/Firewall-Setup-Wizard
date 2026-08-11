@@ -67,11 +67,16 @@ public class Move : MonoBehaviour
 
             for(int i = 0; i < selectTool.selectedBlocks.Count; i++)
             {
-                selectTool.selectedBlocks[i].speed = Mathf.Clamp(magnitude, 0.0f, 25.0f);
-                selectTool.selectedBlocks[i].direction = direction;
+                float speed = Mathf.Clamp(magnitude, 0.0f, 25.0f);
+                int health = (int)Mathf.Lerp((float)selectTool.selectedBlocks[i].health.Value, 1.0f, speed / 25.0f);
 
-                selectTool.selectedBlocks[i].health = (int)Mathf.Lerp((float)selectTool.selectedBlocks[i].health, 1.0f, selectTool.selectedBlocks[i].speed / 25.0f);
-                selectTool.selectedBlocks[i].UpdateHPUI();
+                //selectTool.selectedBlocks[i].speed.Value = Mathf.Clamp(magnitude, 0.0f, 25.0f);
+                //selectTool.selectedBlocks[i].direction.Value = direction;
+                //
+                //selectTool.selectedBlocks[i].health.Value = (int)Mathf.Lerp((float)selectTool.selectedBlocks[i].health.Value, 1.0f, selectTool.selectedBlocks[i].speed.Value / 25.0f);
+                //selectTool.selectedBlocks[i].UpdateHPUI();
+
+                NetworkBlockManager.instance.RequestMoveBlock(speed, direction, health, selectTool.selectedBlocks[i].id.Value);
             }
 
             Destroy(currentArrowStart.gameObject);

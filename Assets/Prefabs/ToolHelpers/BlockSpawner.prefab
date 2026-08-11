@@ -73,8 +73,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8ed13be1a257484ba9641302080c184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
   block: {fileID: 9135724523604561604, guid: e59f3df1bf903b3499a0506737a8932e, type: 3}
+  spacer: {fileID: 3905702067501670394, guid: 9e89ddad0622be24aa198d2b52da4c8b, type: 3}
 --- !u!61 &1898991462014180082
 BoxCollider2D:
   m_ObjectHideFlags: 0

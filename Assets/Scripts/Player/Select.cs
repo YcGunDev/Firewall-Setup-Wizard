@@ -63,6 +63,15 @@ public class Select : MonoBehaviour
             Vector3 screenToWorld = Camera.main.ScreenToWorldPoint(currentMousePos);
             Vector3 pos = new Vector3(screenToWorld.x, screenToWorld.y, 0.0f);
             currentSelectBox = Instantiate(selectBoxPrefab, pos, Quaternion.identity);
+            if (NetworkBlockManager.instance.gameObject.layer == 6)
+            {
+                currentSelectBox.layer = 8;
+            }
+            else if (NetworkBlockManager.instance.gameObject.layer == 7)
+            {
+                currentSelectBox.layer = 9;
+            }
+            Debug.Log(LayerMask.LayerToName(currentSelectBox.layer));
             currentSelectBox.transform.localScale = Vector3.zero;
             sb = currentSelectBox.GetComponent<SelectBox>();
             sb.selectParent = this;

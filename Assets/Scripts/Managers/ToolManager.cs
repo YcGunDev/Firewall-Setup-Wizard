@@ -77,6 +77,7 @@ public class ToolManager : MonoBehaviour
 
     private void MoveHotKey(InputAction.CallbackContext context)
     {
+        Debug.Log("Move");
         equippedTool = Tools.Move;
         ProcessCurrentTool();
     }

@@ -22,12 +22,9 @@ public class SelectBox : MonoBehaviour
         Block block = collision.gameObject.GetComponent<Block>();
         if (block != null)
         {
-            if (collision.gameObject.layer == playerLayer)
+            if (!blockList.Contains(block))
             {
-                if (!blockList.Contains(block))
-                {
-                    blockList.Add(block);
-                }
+                blockList.Add(block);
             }
         }
     }

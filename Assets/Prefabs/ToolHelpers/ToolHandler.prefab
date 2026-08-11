@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &857985273195791769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 123257501732751484}
+  - component: {fileID: 4387653871550709563}
+  m_Layer: 0
+  m_Name: ToolHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &123257501732751484
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 857985273195791769}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4387653871550709563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 857985273195791769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c7858378e3d0949bc95aa7786c7a29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equippedTool: 0
+  player: {fileID: 0}
+  createComponent: {fileID: 0}
+  selectComponent: {fileID: 0}
+  moveComponent: {fileID: 0}
+  createTools:
+    m_Name: Create Tools
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 3885131d-1015-4063-b949-78f381d94535
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: e8707fbb-a1ea-4d52-9a60-2f780e04698e
+      m_Path: <Keyboard>/1
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Create Tools
+      m_Flags: 0
+    m_Flags: 0
+  selectTools:
+    m_Name: Select Tools
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: fc14048b-22c4-4811-9c3d-cd453ad9a09e
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 7e0a180b-9c71-42d8-948d-b7cecbd0a289
+      m_Path: <Keyboard>/2
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Select Tools
+      m_Flags: 0
+    m_Flags: 0
+  moveTools:
+    m_Name: Move Tools
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: a051ae62-5297-4eae-abf1-d311bb6a13f1
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 8d48261d-86fa-411b-930a-ac917dd11624
+      m_Path: <Keyboard>/3
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Move Tools
+      m_Flags: 0
+    m_Flags: 0

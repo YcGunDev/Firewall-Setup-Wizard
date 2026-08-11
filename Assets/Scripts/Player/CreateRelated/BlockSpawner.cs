@@ -6,7 +6,8 @@ public class BlockSpawner : MonoBehaviour
     float colliderTimer = 0.03f;
     float colliderDelay = 0.03f;
     //bool canSpawn = true;
-    [SerializeField] Block block;
+    [SerializeField] Block block;//remove later
+    [SerializeField] Spacer spacer;
 
     Vector2 tr_s = Vector2.zero;
     Vector2 bl_s = Vector2.zero;
@@ -53,42 +54,63 @@ public class BlockSpawner : MonoBehaviour
                 isOverlap = true;
                 break;
             }
-
-            // METHOD 2
-            //if (tr_b.x <= tr_s.x && tr_b.x >= bl_s.x)
-            //{
-            //    if (tr_b.y <= tr_s.y && tr_b.y >= bl_s.y)
-            //    {
-            //        isOverlap = true;
-            //        break;
-            //    }
-            //    else if (bl_b.y <= tr_s.y && bl_b.y >= bl_s.y)
-            //    {
-            //        isOverlap = true;
-            //        break;
-            //    }
-            //}
-            //else if (bl_b.x <= tr_s.x && bl_b.x >= bl_s.x)
-            //{
-            //    if (bl_b.y <= tr_s.y && bl_b.y >= bl_s.y)
-            //    {
-            //        isOverlap = true;
-            //        break;
-            //    }
-            //    else if (tr_b.y <= tr_s.y && tr_b.y >= bl_s.y)
-            //    {
-            //        isOverlap = true;
-            //        break;
-            //    }
-            //}
         }
+
+        if (!isOverlap)
+        {
+            foreach (Spacer spacer in BlockManager.instance.Spacers)
+            {
+                Vector2 tr_b = new Vector2(spacer.transform.position.x + spacer.transform.localScale.x * 0.525f, spacer.transform.position.y + spacer.transform.localScale.y * 0.525f);
+                Vector2 bl_b = new Vector2(spacer.transform.position.x - spacer.transform.localScale.x * 0.525f, spacer.transform.position.y - spacer.transform.localScale.y * 0.525f);
+
+                //should try to use a karnough map to try and optimize this
+
+                // # METHOD 1
+                //top right point is fully enclosed
+                if (tr_b.x <= tr_s.x && tr_b.x >= bl_s.x &&
+                    tr_b.y <= tr_s.y && tr_b.y >= bl_s.y)
+                {
+                    isOverlap = true;
+                    break;
+                }
+                //bottom right is fully enclosed
+                else if (bl_b.x <= tr_s.x && bl_b.x >= bl_s.x &&
+                    bl_b.y <= tr_s.y && bl_b.y >= bl_s.y)
+                {
+                    isOverlap = true;
+                    break;
+                }
+                else if (tr_b.x <= tr_s.x && tr_b.x >= bl_s.x &&
+                    bl_b.y <= tr_s.y && bl_b.y >= bl_s.y)
+                {
+                    isOverlap = true;
+                    break;
+                }
+                else if (bl_b.x <= tr_s.x && bl_b.x >= bl_s.x &&
+                    tr_b.y <= tr_s.y && tr_b.y >= bl_s.y)
+                {
+                    isOverlap = true;
+                    break;
+                }
+            }
+        }
+        
 
         if (!isOverlap)
         {
             if (colliderTimer <= 0)
             {
                 //need to replicate instantiation here
-                Instantiate(block, transform.position, transform.rotation);
+                //GameObject newBlock = Instantiate(block, transform.position, transform.rotation).gameObject;
+
+                //NetworkBlockManager.instance.RequestSpawnBlock(newBlock, transform.position, transform.rotation);
+
+                //need to replicate instantiation here
+                Spacer newSpacer = Instantiate(spacer, transform.position, transform.rotation);
+                newSpacer.id = BlockManager.instance.Blocks.Count;
+
+                NetworkBlockManager.instance.RequestSpawnBlock(transform.position, transform.rotation, newSpacer.id);
+
                 colliderTimer = colliderDelay;
             }
         }
@@ -96,21 +118,4 @@ public class BlockSpawner : MonoBehaviour
 
         transform.position = transform.position + Random.insideUnitSphere * 0.001f;
     }
-
-    //right idea but i think there is a different method to spawning objects across the network
-    //https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.5/manual/basics/object-spawning.html
-
-    //[Rpc(SendTo.ClientsAndHost)]
-    //void TestClientRpc(ulong sourceNetworkObjectId)
-    //{
-    //    //Debug.Log($"Client Received the RPC #{value} on NetworkObject #{sourceNetworkObjectId}");
-
-    //    //Only send an RPC to the server on the client that owns the NetworkObject that owns this NetworkBehaviour instance
-    //    if (IsOwner)
-    //    {
-    //        Instantiate(block, transform.position, transform.rotation);
-    //    }
-    //}
-
-
 }

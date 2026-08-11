@@ -9,8 +9,8 @@ public class CollisionHandler : MonoBehaviour
     {
         if (type == 0) //damage
         {
-            int healthA = A.health;
-            int healthB = B.health;
+            int healthA = A.health.Value;
+            int healthB = B.health.Value;
             A.TakeDamage(healthB);
             B.TakeDamage(healthA);
         }
