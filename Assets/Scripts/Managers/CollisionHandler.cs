@@ -9,10 +9,13 @@ public class CollisionHandler : MonoBehaviour
     {
         if (type == 0) //damage
         {
-            int healthA = A.health.Value;
-            int healthB = B.health.Value;
-            A.TakeDamage(healthB);
-            B.TakeDamage(healthA);
+            //int healthA = A.health.Value;
+            //int healthB = B.health.Value;
+            //A.TakeDamage(healthB);
+            //B.TakeDamage(healthA);
+
+            NetworkBlockManager.instance.RequestDamageBlock(A.id.Value, B.health.Value);
+            NetworkBlockManager.instance.RequestDamageBlock(B.id.Value, A.health.Value);
         }
         else if (type == 1)//bounce -- i might want to rework this later but its fine for now i think
         {

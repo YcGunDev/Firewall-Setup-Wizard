@@ -1,11 +1,6 @@
-using System;
-using System.Collections;
 using TMPro;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
 using UnityEngine;
-using static Unity.Collections.AllocatorManager;
-using static UnityEngine.CullingGroup;
 
 public class Block : NetworkBehaviour, ITakeDamage
 {
@@ -28,12 +23,13 @@ public class Block : NetworkBehaviour, ITakeDamage
     //objects
     [SerializeField] Rigidbody2D rb;
     [SerializeField] TextMeshProUGUI healthUI;
+    [SerializeField] GameObject spawnParticles;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        health.OnValueChanged += OnHPChange; //health may need to be changed from a network variable
+        health.OnValueChanged += OnHPChange; //health may need to be changed from a network variable //or ig not
         gameObject.layer = blockLayer.Value;
     }
 
@@ -114,6 +110,11 @@ public class Block : NetworkBehaviour, ITakeDamage
     public void UpdateHPUI()
     {
         healthUI.text = health.Value.ToString();
+    }
+
+    public void SpawnParticles()
+    {
+        spawnParticles.SetActive(true);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

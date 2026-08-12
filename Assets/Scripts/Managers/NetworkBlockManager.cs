@@ -79,11 +79,11 @@ public class NetworkBlockManager : NetworkBehaviour
 
     public void RequestMoveBlock(float speed, Vector3 direction, int health, int id)
     {
-        RequestMoveBlockServerRpc(speed, direction, health, id);
+        RequestMoveBlockMulticastRpc(speed, direction, health, id);
     }
     
     [Rpc(SendTo.ClientsAndHost, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestMoveBlockServerRpc(float speed, Vector3 direction, int health, int id)
+    private void RequestMoveBlockMulticastRpc(float speed, Vector3 direction, int health, int id)
     {
         Debug.Log("Move block");
         // This code executes strictly on the Server
@@ -91,7 +91,25 @@ public class NetworkBlockManager : NetworkBehaviour
     
         b.speed = speed;
         b.direction = direction;
-        b.health.Value = health;
-        b.UpdateHPUI();
+        if (IsHost)
+        {
+            //b.health.Value = health;
+            RequestDamageBlock(id, b.health.Value - health);
+        }
+    }
+
+    public void RequestDamageBlock(int id, int damage)
+    {
+        RequestDamageBlockMulticastrRpc(id, damage);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestDamageBlockMulticastrRpc(int id, int damage)
+    {
+        Debug.Log("Damage block");
+        // This code executes strictly on the Server
+        Block a = BlockManager.instance.FindBlock(id);
+        a.TakeDamage(damage);
+        a.UpdateHPUI();
     }
 }
