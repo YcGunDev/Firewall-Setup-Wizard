@@ -156,9 +156,10 @@ public class Block : NetworkBehaviour, ITakeDamage
                 sharedHandler.B = otherBlock;
                 sharedHandler.ProcessCollision(0);
             }
-            //its a wall
+            //its a wall, like a player's base wall
             else
             {
+                //this will need to be changed to use the RPC, may need to rework the block manager to include these walls
                 itd.TakeDamage(health.Value);
                 TakeDamage(health.Value);
             }
