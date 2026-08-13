@@ -22,8 +22,9 @@ public class Block : NetworkBehaviour, ITakeDamage
 
     //objects
     [SerializeField] Rigidbody2D rb;
-    [SerializeField] TextMeshProUGUI healthUI;
-    [SerializeField] GameObject spawnParticles;
+    [SerializeField] private TextMeshProUGUI healthUI;
+    [SerializeField] private SpriteRenderer sprite;
+    [SerializeField] private GameObject spawnParticles;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public override void OnNetworkSpawn()
@@ -31,6 +32,14 @@ public class Block : NetworkBehaviour, ITakeDamage
         base.OnNetworkSpawn();
         health.OnValueChanged += OnHPChange; //health may need to be changed from a network variable //or ig not
         gameObject.layer = blockLayer.Value;
+
+        if (gameObject.layer == 6)
+            sprite.color = new Color(1.0f, 0.67f, 0.67f, 1.0f);
+
+        else if (gameObject.layer == 7)
+            sprite.color = new Color(0.67f, 0.67f, 1.0f, 1.0f);
+
+        else sprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     //public override void OnNetworkDespawn()
@@ -44,23 +53,14 @@ public class Block : NetworkBehaviour, ITakeDamage
         //speed = 0.0f;
         //direction = Vector2.zero;
 
+        healthUI = GetComponentInChildren<TextMeshProUGUI>();
         UpdateHPUI();
+
+        sprite = GetComponentInChildren<SpriteRenderer>();
+        
 
         BlockManager.instance.AddBlock(this);
 
-        //NetworkBlockManager.instance.RequestSpawnBlock(gameObject);
-        //NetworkBlockManager.instance.RequestSpawnBlockServerRpc(GetComponent<NetworkObject>());
-
-        /*
-         * the problem with this system is that while the host can easily replicate the blocks it creates, the client will never be able to 
-         * send/request for the block to replicate.
-         * RPCs can only be called after an object has bee replicated over the network
-         * because the RPC or replication request comes from the block itself, its an infinite loop of
-         * needing to replicate so it sends an RPC, but to send an RPC it needs to replicate
-         * 
-         * I may need to do a proxy kind of replication where the block requests a replicated class to replicate the block for it
-         
-         */
     }
 
     private void Start()

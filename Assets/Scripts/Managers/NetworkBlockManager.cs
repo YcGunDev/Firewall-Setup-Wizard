@@ -100,13 +100,13 @@ public class NetworkBlockManager : NetworkBehaviour
 
     public void RequestDamageBlock(int id, int damage)
     {
-        RequestDamageBlockMulticastrRpc(id, damage);
+        RequestDamageBlockMulticastRpc(id, damage);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestDamageBlockMulticastrRpc(int id, int damage)
+    private void RequestDamageBlockMulticastRpc(int id, int damage)
     {
-        Debug.Log("Damage block");
+        Debug.Log("Damage block: " + damage);
         // This code executes strictly on the Server
         Block a = BlockManager.instance.FindBlock(id);
         a.TakeDamage(damage);

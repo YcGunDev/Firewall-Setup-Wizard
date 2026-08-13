@@ -185,7 +185,8 @@ MonoBehaviour:
   drag: 0.975
   sharedHandler: {fileID: 0}
   rb: {fileID: 5945991421415436600}
-  healthUI: {fileID: 1425978195530117364}
+  healthUI: {fileID: 0}
+  sprite: {fileID: 0}
   spawnParticles: {fileID: 3681583236905951297}
 --- !u!50 &5945991421415436600
 Rigidbody2D:
