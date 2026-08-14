@@ -100,12 +100,7 @@ public class BlockSpawner : MonoBehaviour
         {
             if (colliderTimer <= 0)
             {
-                //need to replicate instantiation here
-                //GameObject newBlock = Instantiate(block, transform.position, transform.rotation).gameObject;
-
-                //NetworkBlockManager.instance.RequestSpawnBlock(newBlock, transform.position, transform.rotation);
-
-                //need to replicate instantiation here
+                //using a spacer to help handle replication
                 Spacer newSpacer = Instantiate(spacer, transform.position, transform.rotation);
                 newSpacer.id = BlockManager.instance.Blocks.Count;
 

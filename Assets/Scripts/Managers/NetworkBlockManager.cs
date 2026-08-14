@@ -7,6 +7,7 @@ public class NetworkBlockManager : NetworkBehaviour
     public static NetworkBlockManager instance;
 
     public GameObject block;
+    public GameObject alliedSpawnArea;
     private void Awake()
     {
         instance = this;
@@ -19,10 +20,12 @@ public class NetworkBlockManager : NetworkBehaviour
         if (IsHost) //host
         {
             gameObject.layer = LayerMask.NameToLayer("Player1");
+            alliedSpawnArea = BlockManager.instance.spawnArea1;
         }
         else //client
         {
             gameObject.layer = LayerMask.NameToLayer("Player2");
+            alliedSpawnArea = BlockManager.instance.spawnArea2;
         }
     }
 

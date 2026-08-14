@@ -12,6 +12,8 @@ public class BlockManager : MonoBehaviour
 
     public List<Block> Blocks = new List<Block>();
     public List<Spacer> Spacers = new List<Spacer>();
+    public GameObject spawnArea1;
+    public GameObject spawnArea2;
 
     public bool RemoveBlock(Block targetBlock)
     {
