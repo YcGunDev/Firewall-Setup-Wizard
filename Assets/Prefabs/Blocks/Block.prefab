@@ -182,12 +182,12 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  drag: 0.975
+  drag: 0.5
   sharedHandler: {fileID: 0}
-  rb: {fileID: 5945991421415436600}
+  rb: {fileID: 0}
   healthUI: {fileID: 0}
   sprite: {fileID: 0}
-  spawnParticles: {fileID: 3681583236905951297}
+  spawnParticles: {fileID: 5633798147049980392, guid: e72d48e2a51991b4182378e29695c40c, type: 3}
 --- !u!50 &5945991421415436600
 Rigidbody2D:
   serializedVersion: 5
@@ -579,11 +579,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e72d48e2a51991b4182378e29695c40c, type: 3}
---- !u!1 &3681583236905951297 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5633798147049980392, guid: e72d48e2a51991b4182378e29695c40c, type: 3}
-  m_PrefabInstance: {fileID: 9023201420234777001}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5828579743899092804 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3304410154342049517, guid: e72d48e2a51991b4182378e29695c40c, type: 3}

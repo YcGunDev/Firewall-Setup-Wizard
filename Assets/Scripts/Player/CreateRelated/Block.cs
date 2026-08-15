@@ -1,5 +1,6 @@
 using TMPro;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 
 public class Block : NetworkBehaviour, ITakeDamage
@@ -14,7 +15,7 @@ public class Block : NetworkBehaviour, ITakeDamage
 
     public NetworkVariable<int> blockLayer;
 
-    public float drag = 0.005f;
+    [SerializeField] private float drag = 0.5f;
 
     //there is a chance i may want to replicate all these values, and not rely on unity's network transform, the motion is smooth but not perfect
 
@@ -52,12 +53,16 @@ public class Block : NetworkBehaviour, ITakeDamage
         if (health.Value <= 0) health.Value = 100;
         //speed = 0.0f;
         //direction = Vector2.zero;
+        if (!rb)
+            rb = GetComponentInChildren<Rigidbody2D>();
 
-        healthUI = GetComponentInChildren<TextMeshProUGUI>();
+        if (!healthUI)
+            healthUI = GetComponentInChildren<TextMeshProUGUI>();
         UpdateHPUI();
 
-        sprite = GetComponentInChildren<SpriteRenderer>();
-        
+        if (!sprite)
+            sprite = GetComponentInChildren<SpriteRenderer>();
+
 
         BlockManager.instance.AddBlock(this);
 

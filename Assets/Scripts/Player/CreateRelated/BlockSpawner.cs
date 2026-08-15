@@ -20,6 +20,21 @@ public class BlockSpawner : MonoBehaviour
         tr_s = new Vector2(transform.position.x + transform.localScale.x * 0.525f, transform.position.y + transform.localScale.y * 0.525f);
         bl_s = new Vector2(transform.position.x - transform.localScale.x * 0.525f, transform.position.y - transform.localScale.y * 0.525f);
 
+        GameObject sa = NetworkBlockManager.instance.alliedSpawnArea;
+
+        Vector2 tr_sa = new Vector2(sa.transform.position.x + sa.transform.localScale.x * 0.525f, sa.transform.position.y + sa.transform.localScale.y * 0.525f);
+        Vector2 bl_sa = new Vector2(sa.transform.position.x - sa.transform.localScale.x * 0.525f, sa.transform.position.y - sa.transform.localScale.y * 0.525f);
+
+        //you can only spawn a block if the spawner is fully contained within the area
+        //more specifically, the top right and bottom left point is contained
+        if (!(tr_s.x <= tr_sa.x && tr_s.y <= tr_sa.y &&
+            bl_s.x >= bl_sa.x && bl_s.y >= bl_sa.y ))
+        {
+            return;
+        }
+
+
+
         foreach (Block block in BlockManager.instance.Blocks)
         {
             Vector2 tr_b = new Vector2(block.transform.position.x + block.transform.localScale.x * 0.525f, block.transform.position.y + block.transform.localScale.y * 0.525f);
@@ -42,6 +57,7 @@ public class BlockSpawner : MonoBehaviour
                 isOverlap = true;
                 break;
             }
+            //check the other cases
             else if (tr_b.x <= tr_s.x && tr_b.x >= bl_s.x &&
                 bl_b.y <= tr_s.y && bl_b.y >= bl_s.y)
             {

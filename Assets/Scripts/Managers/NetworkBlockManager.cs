@@ -11,7 +11,6 @@ public class NetworkBlockManager : NetworkBehaviour
     private void Awake()
     {
         instance = this;
-        Debug.Log("Network Block Manager");
     }
 
     public override void OnNetworkSpawn()
@@ -20,12 +19,12 @@ public class NetworkBlockManager : NetworkBehaviour
         if (IsHost) //host
         {
             gameObject.layer = LayerMask.NameToLayer("Player1");
-            alliedSpawnArea = BlockManager.instance.spawnArea1;
+            alliedSpawnArea = ObjectManager.instance.spawnAreaP1;
         }
         else //client
         {
             gameObject.layer = LayerMask.NameToLayer("Player2");
-            alliedSpawnArea = BlockManager.instance.spawnArea2;
+            alliedSpawnArea = ObjectManager.instance.spawnAreaP2;
         }
     }
 
