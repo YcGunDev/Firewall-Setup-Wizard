@@ -1,11 +1,12 @@
+using System.Collections;
 using TMPro;
 using Unity.Netcode;
-using UnityEditor;
 using UnityEngine;
 
 public class Block : NetworkBehaviour, ITakeDamage
 {
     //I'm personally not sold on this, but atm its the easiest method and its working, so go get em tiger
+    [Header("Attributes")]
     public NetworkVariable<int> id;
     public NetworkVariable<int> health = new NetworkVariable<int>(0, 
         NetworkVariableReadPermission.Everyone, 
@@ -19,13 +20,21 @@ public class Block : NetworkBehaviour, ITakeDamage
 
     //there is a chance i may want to replicate all these values, and not rely on unity's network transform, the motion is smooth but not perfect
 
-    public CollisionHandler sharedHandler = null;
 
-    //objects
+    [Header("Components")]
     [SerializeField] Rigidbody2D rb;
     [SerializeField] private TextMeshProUGUI healthUI;
     [SerializeField] private SpriteRenderer sprite;
+    public CollisionHandler sharedHandler = null;
+
+    [Header("Effects")]
     [SerializeField] private GameObject spawnParticles;
+    [SerializeField] float shakeMagnitude = 1f;
+    [SerializeField] float effectSpeed = 0.1f;
+    private Color baseColour;
+    private Vector3 basePos;
+    private bool isEffect = false;
+    private float shakeStrength = 1.0f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public override void OnNetworkSpawn()
@@ -39,8 +48,11 @@ public class Block : NetworkBehaviour, ITakeDamage
 
         else if (gameObject.layer == 7)
             sprite.color = new Color(0.67f, 0.67f, 1.0f, 1.0f);
-
+            
         else sprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+
+        baseColour = sprite.color;
+        basePos = sprite.transform.localPosition;
     }
 
     //public override void OnNetworkDespawn()
@@ -66,6 +78,7 @@ public class Block : NetworkBehaviour, ITakeDamage
 
         BlockManager.instance.AddBlock(this);
 
+        
     }
 
     private void Start()
@@ -73,9 +86,6 @@ public class Block : NetworkBehaviour, ITakeDamage
         BlockManager.instance.ReplaceSpacer(id.Value);
         
     }
-
-    
-
     public override void OnDestroy()
     {
         base.OnDestroy();
@@ -101,15 +111,18 @@ public class Block : NetworkBehaviour, ITakeDamage
     {
         health.Value -= Mathf.Abs(damage);
         UpdateHPUI();
-        if (health.Value <= 0)
-        {
-            Destroy(this.gameObject);
-        }
+        if (health.Value <= 0) Destroy(this.gameObject);
+        else TryDamageEffect(damage);
     }
 
     private void OnHPChange(int previousValue, int newValue)
     {
-        UpdateHPUI();
+        if (health.Value <= 0) Destroy(this.gameObject);
+        else
+        {
+            TryDamageEffect(previousValue - newValue);
+            UpdateHPUI();
+        }
     }
 
     public void UpdateHPUI()
@@ -120,6 +133,49 @@ public class Block : NetworkBehaviour, ITakeDamage
     public void SpawnParticles()
     {
         spawnParticles.SetActive(true);
+    }
+
+    void TryDamageEffect(int damage)
+    {
+        if (isEffect)
+        {
+            //dont start a new coroutine
+            sprite.color = Color.white;
+            shakeStrength = 1.0f;
+        }
+        else
+        {
+            isEffect = true;
+            StartCoroutine(DamageBaseColourEffect());
+            StartCoroutine(DamageShakeEffect(damage));
+            //I tried add colour flashing to the text aswell but its not percievable ngl so ill leave it out
+        }
+    }
+
+    IEnumerator DamageBaseColourEffect()
+    {
+        sprite.color = Color.white;
+        while (sprite.color != baseColour)
+        {
+            sprite.color = Color.Lerp(sprite.color, baseColour, effectSpeed);
+            yield return null;
+        }
+
+        isEffect = false;
+        yield return null;
+    }
+
+    IEnumerator DamageShakeEffect(int damage)
+    {
+        shakeStrength = 1.0f;
+        while (isEffect)
+        {
+            sprite.transform.localPosition = basePos + (Vector3)Random.insideUnitCircle.normalized * shakeMagnitude * shakeStrength * ((float)damage / 1000f);
+            Mathf.Lerp(shakeStrength, 0.0f, effectSpeed);
+            yield return null;
+        }
+        sprite.transform.localPosition = basePos;
+        yield return null;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
