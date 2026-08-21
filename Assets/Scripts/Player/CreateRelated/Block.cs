@@ -28,6 +28,7 @@ public class Block : NetworkBehaviour, ITakeDamage
     public CollisionHandler sharedHandler = null;
 
     [Header("Effects")]
+    [SerializeField] private GameObject collideParticles;
     [SerializeField] private GameObject spawnParticles;
     [SerializeField] float shakeMagnitude = 1f;
     [SerializeField] float effectSpeed = 0.1f;
@@ -200,6 +201,8 @@ public class Block : NetworkBehaviour, ITakeDamage
                 direction = Vector2.Reflect(direction, collision.GetContact(0).normal);
                 speed *= 0.9f;
             }
+            CollideParticleEffect(collision.GetContact(0).point, collision.GetContact(0).normal);
+            CollideParticleEffect(collision.GetContact(0).point, -collision.GetContact(0).normal);
             return;
         }
 
@@ -224,11 +227,21 @@ public class Block : NetworkBehaviour, ITakeDamage
                 itd.TakeDamage(health.Value);
                 TakeDamage(health.Value);
             }
+
+            CollideParticleEffect(collision.GetContact(0).point, collision.GetContact(0).normal);
+            CollideParticleEffect(collision.GetContact(0).point, -collision.GetContact(0).normal);
             return;
         }
 
         //its probably an obstacle of some kind, bounce
         direction = Vector2.Reflect(direction, collision.GetContact(0).normal);
         speed *= 0.9f;
+        CollideParticleEffect(collision.GetContact(0).point, collision.GetContact(0).normal);
+    }
+
+    private void CollideParticleEffect(Vector2 point, Vector2 norm)
+    {
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.right, norm) * transform.rotation;
+        Instantiate(collideParticles, point, targetRotation);
     }
 }

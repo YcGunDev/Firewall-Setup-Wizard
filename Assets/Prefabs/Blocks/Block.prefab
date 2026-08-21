@@ -183,11 +183,14 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   drag: 0.5
-  sharedHandler: {fileID: 0}
   rb: {fileID: 0}
   healthUI: {fileID: 0}
   sprite: {fileID: 0}
+  sharedHandler: {fileID: 0}
+  collideParticles: {fileID: 3615260843075138800, guid: 8770acd8f77d61848aad762d1278dbab, type: 3}
   spawnParticles: {fileID: 5633798147049980392, guid: e72d48e2a51991b4182378e29695c40c, type: 3}
+  shakeMagnitude: 1
+  effectSpeed: 0.1
 --- !u!50 &5945991421415436600
 Rigidbody2D:
   serializedVersion: 5
