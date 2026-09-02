@@ -5,10 +5,8 @@ using UnityEngine.InputSystem;
 public class Select : MonoBehaviour
 {
     public InputAction mouseDown;
-    public InputAction mousePos;
     [Space]
     public bool isPressed = false;
-    public Vector2 currentMousePos;
     public Vector2 selectStartPos;
 
     [SerializeField] GameObject selectBoxPrefab;
@@ -20,20 +18,26 @@ public class Select : MonoBehaviour
     private void OnEnable()
     {
         mouseDown.Enable();
-        mousePos.Enable();
+        selectStartPos = MouseTracker.instance.currentMousePos;
     }
 
     private void OnDisable()
     {
         mouseDown.Disable();
-        mousePos.Disable();
+
+        selectStartPos = MouseTracker.instance.currentMousePos;
+        isPressed = false;
+        if (!isPressed && currentSelectBox != null)
+        {
+            sb.SendBlockList();
+            Destroy(currentSelectBox.gameObject);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         mouseDown.performed += MouseDown;
-        mousePos.performed += MousePos;
 
         if(currentSelectBox != null)
         {
@@ -41,7 +45,7 @@ public class Select : MonoBehaviour
             Vector3 startToWorld = Camera.main.ScreenToWorldPoint(selectStartPos);
             Vector3 startPos = new Vector3(startToWorld.x, startToWorld.y, 0.0f);
 
-            Vector3 currentToWorld = Camera.main.ScreenToWorldPoint(currentMousePos);
+            Vector3 currentToWorld = Camera.main.ScreenToWorldPoint(MouseTracker.instance.currentMousePos);
             Vector3 currentPos = new Vector3(currentToWorld.x, currentToWorld.y, 0.0f);
 
             Vector3 midpoint = Vector3.Lerp(startPos, currentPos, 0.5f);
@@ -59,19 +63,19 @@ public class Select : MonoBehaviour
 
         if (isPressed && currentSelectBox == null)
         {
-            selectStartPos = currentMousePos;
-            Vector3 screenToWorld = Camera.main.ScreenToWorldPoint(currentMousePos);
+            //if (currentMousePos == Vector2.zero) selectStartPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            //else selectStartPos = currentMousePos;
+
+            //Debug.Log("huh");
+            Vector3 screenToWorld = Camera.main.ScreenToWorldPoint(MouseTracker.instance.currentMousePos);
             Vector3 pos = new Vector3(screenToWorld.x, screenToWorld.y, 0.0f);
             currentSelectBox = Instantiate(selectBoxPrefab, pos, Quaternion.identity);
             if (NetworkBlockManager.instance.gameObject.layer == 6)
-            {
                 currentSelectBox.layer = 8;
-            }
+
             else if (NetworkBlockManager.instance.gameObject.layer == 7)
-            {
                 currentSelectBox.layer = 9;
-            }
-            Debug.Log(LayerMask.LayerToName(currentSelectBox.layer));
+
             currentSelectBox.transform.localScale = Vector3.zero;
             sb = currentSelectBox.GetComponent<SelectBox>();
             sb.selectParent = this;
@@ -85,10 +89,5 @@ public class Select : MonoBehaviour
 
 
         //save the location of where u moused downed
-    }
-
-    private void MousePos(InputAction.CallbackContext context)
-    {
-        currentMousePos = context.ReadValue<Vector2>();
     }
 }

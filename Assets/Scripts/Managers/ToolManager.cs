@@ -1,4 +1,4 @@
-using UnityEditor;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,18 +40,8 @@ public class ToolManager : MonoBehaviour
         createComponent = FindFirstObjectByType<Create>(FindObjectsInactive.Include).gameObject;
         selectComponent = FindFirstObjectByType<Select>(FindObjectsInactive.Include).gameObject;
         moveComponent = FindFirstObjectByType<Move>(FindObjectsInactive.Include).gameObject;
-        switch (equippedTool)
-        {
-            case Tools.Create:
-                createComponent.SetActive(true);
-                break;
-            case Tools.Select:
-                selectComponent.SetActive(true);
-                break;
-            case Tools.Move:
-                moveComponent.SetActive(true);
-                break;
-        }
+
+        StartCoroutine(Wait1Frame());
     }
 
     void Update()
@@ -104,4 +94,11 @@ public class ToolManager : MonoBehaviour
         }
     }
 
+    IEnumerator Wait1Frame()
+    {
+        yield return new WaitForEndOfFrame();//this is at the end of the current render loop
+        yield return new WaitForEndOfFrame();//after the loop
+
+        ProcessCurrentTool();
+    }
 }
