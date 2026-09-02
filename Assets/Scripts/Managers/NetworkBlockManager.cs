@@ -8,6 +8,7 @@ public class NetworkBlockManager : NetworkBehaviour
 
     public GameObject block;
     public GameObject alliedSpawnArea;
+    [SerializeField] GameObject NGM;
     private void Awake()
     {
         instance = this;
@@ -20,41 +21,42 @@ public class NetworkBlockManager : NetworkBehaviour
         {
             gameObject.layer = LayerMask.NameToLayer("Player1");
             alliedSpawnArea = ObjectManager.instance.spawnAreaP1;
+
+            if (IsOwnedByServer)
+            {
+                //1. spawn it
+                GameObject ngm = Instantiate(NGM, Vector3.zero, Quaternion.identity);
+
+                // 2. Get the NetworkObject component
+                NetworkObject _ngm = ngm.GetComponent<NetworkObject>();
+
+                // 3. Spawn across the network to all clients
+                _ngm.Spawn();
+            }
+            
         }
         else //client
         {
             gameObject.layer = LayerMask.NameToLayer("Player2");
             alliedSpawnArea = ObjectManager.instance.spawnAreaP2;
         }
+
+
+        //if (NetworkGameManager.instance == null)
+        //{
+            
+        //}
     }
 
-    //public void RequestSpawnBlock(GameObject block, Vector3 spawnPos, Quaternion spawnRot)
-    //{
-    //    Debug.Log("IsHost: " + IsHost);
-    //    Debug.Log("IsClient: " + IsClient);
-    //    if (IsHost) //host
-    //    {
-    //        block.GetComponent<NetworkObject>().Spawn();
-    //    }
-    //    else //client
-    //    {
-    //        RequestSpawnBlockServerRpc(spawnPos, spawnRot);
 
-    //        //if (block.TryGetComponent<NetworkObject>(out var netObject))
-    //        //{
-    //        //    // Implicitly converts GameObject/NetworkObject to NetworkObjectReference
-    //        //    RequestSpawnBlockServerRpc(netObject);
-    //        //}
-    //    }
-    //}
 
-    public void RequestSpawnBlock(Vector3 spawnPos, Quaternion spawnRot, int id)
+    public void RequestSpawnBlock(Vector3 spawnPos, Quaternion spawnRot, uint id)
     {
         RequestSpawnBlockServerRpc(spawnPos, spawnRot, id, gameObject.layer);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestSpawnBlockServerRpc(Vector3 spawnPos, Quaternion spawnRot, int id, int blockOwner)
+    private void RequestSpawnBlockServerRpc(Vector3 spawnPos, Quaternion spawnRot, uint id, int blockOwner)
     {
         Debug.Log("Spawn block");
         // This code executes strictly on the Server
@@ -79,13 +81,13 @@ public class NetworkBlockManager : NetworkBehaviour
         networkBlock.Spawn();
     }
 
-    public void RequestMoveBlock(float speed, Vector3 direction, int health, int id)
+    public void RequestMoveBlock(float speed, Vector3 direction, int health, uint id)
     {
         RequestMoveBlockMulticastRpc(speed, direction, health, id);
     }
     
     [Rpc(SendTo.ClientsAndHost, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestMoveBlockMulticastRpc(float speed, Vector3 direction, int health, int id)
+    private void RequestMoveBlockMulticastRpc(float speed, Vector3 direction, int health, uint id)
     {
         Debug.Log("Move block");
         // This code executes strictly on the Server
@@ -100,18 +102,39 @@ public class NetworkBlockManager : NetworkBehaviour
         }
     }
 
-    public void RequestDamageBlock(int id, int damage)
+    public void RequestDamageBlock(uint id, int damage)
     {
         RequestDamageBlockMulticastRpc(id, damage);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestDamageBlockMulticastRpc(int id, int damage)
+    private void RequestDamageBlockMulticastRpc(uint id, int damage)
     {
         Debug.Log("Damage block: " + damage);
         // This code executes strictly on the Server
         Block a = BlockManager.instance.FindBlock(id);
         a.TakeDamage(damage);
         a.UpdateHPUI();
+    }
+
+    //this one is special and will use the network id
+    public void RequestSetBlockID(ulong netID, uint newID)
+    {
+        RequestSetBlockIDServerRpc(netID, newID);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestSetBlockIDServerRpc(ulong netID, uint newID)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(netID, out NetworkObject networkObject))
+        {
+            GameObject targetGo = networkObject.gameObject;
+            targetGo.GetComponent<Block>().id.Value = newID;
+            Debug.Log($"Found object: {targetGo.name}, setting id to " + newID);
+        }
+        else
+        {
+            Debug.LogWarning($"No network object found with ID: {netID}");
+        }
     }
 }

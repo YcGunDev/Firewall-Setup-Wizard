@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,7 +8,7 @@ public class Block : NetworkBehaviour, ITakeDamage
 {
     //I'm personally not sold on this, but atm its the easiest method and its working, so go get em tiger
     [Header("Attributes")]
-    public NetworkVariable<int> id;
+    public NetworkVariable<uint> id;
     public NetworkVariable<int> health = new NetworkVariable<int>(0, 
         NetworkVariableReadPermission.Everyone, 
         NetworkVariableWritePermission.Owner);
@@ -85,7 +86,20 @@ public class Block : NetworkBehaviour, ITakeDamage
     private void Start()
     {
         BlockManager.instance.ReplaceSpacer(id.Value);
-        
+
+        //now the glaring problem is that there isnt a good way to test this on my own,
+        //because loopback ping will be close to zero and I cant move that fast
+        //but this should avoid double ids which can occur due to latency
+        //TODO: Test this eventually
+
+        List<Block> blackList = new List<Block>();
+        blackList.Add(this);
+        if (BlockManager.instance.FindBlock(id.Value, blackList) != null)
+        {
+            //that means there is atleast 1 block that isnt this one that shares the same ID, so lets get a new one
+            NetworkBlockManager.instance.RequestSetBlockID(NetworkObjectId, NetworkGameManager.instance.ClaimID());
+            //id.Value = NetworkGameManager.instance.ClaimID();
+        }
     }
     public override void OnDestroy()
     {
@@ -183,6 +197,10 @@ public class Block : NetworkBehaviour, ITakeDamage
     {
         if (sharedHandler != null) return;
 
+        Vector2 pt = collision.GetContact(0).point;
+        Vector2 nm = collision.GetContact(0).normal;
+        GameObject go = collision.gameObject;
+
         //allied
         if (collision.gameObject.layer == gameObject.layer)
         {
@@ -201,8 +219,8 @@ public class Block : NetworkBehaviour, ITakeDamage
                 direction = Vector2.Reflect(direction, collision.GetContact(0).normal);
                 speed *= 0.9f;
             }
-            CollideParticleEffect(collision.GetContact(0).point, collision.GetContact(0).normal);
-            CollideParticleEffect(collision.GetContact(0).point, -collision.GetContact(0).normal);
+            CollideParticleEffect(pt, nm, go);
+            CollideParticleEffect(pt, -nm, go);
             return;
         }
 
@@ -228,20 +246,25 @@ public class Block : NetworkBehaviour, ITakeDamage
                 TakeDamage(health.Value);
             }
 
-            CollideParticleEffect(collision.GetContact(0).point, collision.GetContact(0).normal);
-            CollideParticleEffect(collision.GetContact(0).point, -collision.GetContact(0).normal);
+            CollideParticleEffect(pt, nm, go);
+            CollideParticleEffect(pt, -nm, go);
             return;
         }
 
         //its probably an obstacle of some kind, bounce
         direction = Vector2.Reflect(direction, collision.GetContact(0).normal);
         speed *= 0.9f;
-        CollideParticleEffect(collision.GetContact(0).point, collision.GetContact(0).normal);
+        CollideParticleEffect(pt, -nm, go);
     }
 
-    private void CollideParticleEffect(Vector2 point, Vector2 norm)
+    //this will need to be replicated aswell ngl, or moreso collisions in general instead of just relying on the client to also register the hit
+    private void CollideParticleEffect(Vector2 point, Vector2 norm, GameObject gameObject)
     {
         Quaternion targetRotation = Quaternion.FromToRotation(transform.right, norm) * transform.rotation;
-        Instantiate(collideParticles, point, targetRotation);
+        ParticleSystem part = Instantiate(collideParticles, point, targetRotation).GetComponent<ParticleSystem>();
+        var main = part.main;
+        SpriteRenderer rend = gameObject.GetComponent<SpriteRenderer>();
+        if (rend == null) rend = gameObject.GetComponentInChildren<SpriteRenderer>();
+        if (rend != null) main.startColor = rend.color;
     }
 }

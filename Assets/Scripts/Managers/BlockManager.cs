@@ -39,7 +39,7 @@ public class BlockManager : MonoBehaviour
         Spacers.Add(targetSpacer);
     }
 
-    public void ReplaceSpacer(int id)
+    public void ReplaceSpacer(uint id)
     {
         Spacer space = Spacers.Find(spacer => spacer.id == id);
         if (space != null)
@@ -54,9 +54,15 @@ public class BlockManager : MonoBehaviour
         
     }
 
-    public Block FindBlock(int id)
+    public Block FindBlock(uint id, List<Block> blackList = null)
     {
-        Block b = Blocks.Find(block => block.id.Value == id);
+        Block b = null;
+        if (blackList != null)
+            b = Blocks.Find(block => block.id.Value == id && isBlockInList(block, blackList));
+
+        else
+            b = Blocks.Find(block => block.id.Value == id);
+
         if (b != null)
         {
             Debug.Log("Block found, id: " + id);
@@ -67,5 +73,15 @@ public class BlockManager : MonoBehaviour
         }
 
         return b;
+    }
+
+    bool isBlockInList(Block b, List<Block> bl)
+    {
+        foreach (Block block in bl)
+        {
+            if (b == block)
+                return true;
+        }
+        return false;
     }
 }

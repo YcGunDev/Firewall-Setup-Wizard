@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Spacer : MonoBehaviour
 {
-    public int id = 0;
+    public uint id = 0;
     void Awake()
     {
         if (BlockManager.instance == null)

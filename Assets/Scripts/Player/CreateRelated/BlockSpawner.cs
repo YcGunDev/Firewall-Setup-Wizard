@@ -118,7 +118,8 @@ public class BlockSpawner : MonoBehaviour
             {
                 //using a spacer to help handle replication
                 Spacer newSpacer = Instantiate(spacer, transform.position, transform.rotation);
-                newSpacer.id = BlockManager.instance.Blocks.Count;
+                //could use a failsafe
+                newSpacer.id = NetworkGameManager.instance.ClaimID();
 
                 NetworkBlockManager.instance.RequestSpawnBlock(transform.position, transform.rotation, newSpacer.id);
 
