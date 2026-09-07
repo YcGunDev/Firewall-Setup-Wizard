@@ -52,5 +52,13 @@ MonoBehaviour:
     m_Id: cd0ddd77-4f48-4dd8-a2bd-b59d15a64ebe
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings: []
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: df59b3f7-b33c-49a6-ac61-4442d5783dcf
+      m_Path: <Mouse>/position
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Mouse Pos
+      m_Flags: 0
     m_Flags: 0

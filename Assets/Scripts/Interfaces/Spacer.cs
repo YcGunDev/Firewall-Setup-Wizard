@@ -5,24 +5,24 @@ public class Spacer : MonoBehaviour
     public uint id = 0;
     void Awake()
     {
-        if (BlockManager.instance == null)
+        if (EntityManager.instance == null)
         {
             Invoke("AddSelf", 0.1f);
         }
         else
         {
-            BlockManager.instance.AddSpacer(this);
+            EntityManager.instance.AddSpacer(this);
         }
         
     }
 
     private void OnDestroy()
     {
-        BlockManager.instance.RemoveSpacer(this);
+        EntityManager.instance.RemoveSpacer(this);
     }
 
     private void AddSelf()
     {
-        BlockManager.instance.AddSpacer(this);
+        EntityManager.instance.AddSpacer(this);
     }
 }

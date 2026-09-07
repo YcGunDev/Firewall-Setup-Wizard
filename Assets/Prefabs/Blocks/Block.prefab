@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 6125599408926433393}
   - component: {fileID: -511719316341441011}
   - component: {fileID: 9135724523604561604}
+  - component: {fileID: 3065217206485046125}
   - component: {fileID: 5945991421415436600}
   - component: {fileID: 2647960214285938967}
   - component: {fileID: -6158077981293466919}
@@ -170,27 +171,44 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  health:
+  blockLayer:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   speed: 0
   direction: {x: 0, y: 0}
-  blockLayer:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
   drag: 0.5
   rb: {fileID: 0}
-  healthUI: {fileID: 0}
   sprite: {fileID: 0}
+  healthComp: {fileID: 0}
   sharedHandler: {fileID: 0}
   collideParticles: {fileID: 3615260843075138800, guid: 8770acd8f77d61848aad762d1278dbab, type: 3}
   spawnParticles: {fileID: 5633798147049980392, guid: e72d48e2a51991b4182378e29695c40c, type: 3}
   shakeMagnitude: 1
   effectSpeed: 0.1
+--- !u!114 &3065217206485046125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2222708513054541615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c449500ce147cc42aaa49da0db03fca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  health:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  healthUI: {fileID: 0}
+  OnDamagetaken:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!50 &5945991421415436600
 Rigidbody2D:
   serializedVersion: 5

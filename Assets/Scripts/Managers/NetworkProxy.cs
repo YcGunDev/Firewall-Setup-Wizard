@@ -2,9 +2,11 @@ using Unity.Netcode;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-public class NetworkBlockManager : NetworkBehaviour
+public class NetworkProxy : NetworkBehaviour
 {
-    public static NetworkBlockManager instance;
+    //rn we're getting away with this because there can only be one instance, so the other proxy that spawns isnt used, i might want to spawn in the
+    //proxy the same way the game manager is being spawned in
+    public static NetworkProxy instance;
 
     public GameObject block;
     public GameObject alliedSpawnArea;
@@ -40,15 +42,7 @@ public class NetworkBlockManager : NetworkBehaviour
             gameObject.layer = LayerMask.NameToLayer("Player2");
             alliedSpawnArea = ObjectManager.instance.spawnAreaP2;
         }
-
-
-        //if (NetworkGameManager.instance == null)
-        //{
-            
-        //}
     }
-
-
 
     public void RequestSpawnBlock(Vector3 spawnPos, Quaternion spawnRot, uint id)
     {
@@ -64,15 +58,6 @@ public class NetworkBlockManager : NetworkBehaviour
         Block b = currentBlock.GetComponent<Block>();
         b.id.Value = id;
         b.blockLayer.Value = blockOwner;
-
-
-        /*
-         * OKAY so if i comment out the lines below, the spawning IS replicated, but the movement is not.
-         * If I uncomment the lines below, the spawning is duplicated but the movement IS replicated.
-         * FOR CLIENT
-         * host works completely fine
-         
-         */
 
         // 2. Get the NetworkObject component
         NetworkObject networkBlock = currentBlock.GetComponent<NetworkObject>();
@@ -91,45 +76,57 @@ public class NetworkBlockManager : NetworkBehaviour
     {
         Debug.Log("Move block");
         // This code executes strictly on the Server
-        Block b = BlockManager.instance.FindBlock(id);
+        Block b = EntityManager.instance.FindBlock(id);
     
         b.speed = speed;
         b.direction = direction;
         if (IsHost)
         {
-            //b.health.Value = health;
-            RequestDamageBlock(id, b.health.Value - health);
+            NetworkHealthComponent h = b.GetComponent<NetworkHealthComponent>();
+            if (h != null)
+                RequestDamageEntity(id, h.health.Value - health);
         }
     }
 
-    public void RequestDamageBlock(uint id, int damage)
+    public void RequestDamageEntity(uint id, int damage)
     {
-        RequestDamageBlockMulticastRpc(id, damage);
+        RequestDamageHealthComponentServerRpc(id, damage);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestDamageBlockMulticastRpc(uint id, int damage)
+    private void RequestDamageHealthComponentServerRpc(uint id, int damage)
     {
-        Debug.Log("Damage block: " + damage);
+        Debug.Log("Damage entity: " + damage);
         // This code executes strictly on the Server
-        Block a = BlockManager.instance.FindBlock(id);
-        a.TakeDamage(damage);
-        a.UpdateHPUI();
+        NetworkHealthComponent a = EntityManager.instance.FindEntity(id);
+        if (a != null) a.TakeDamage(damage);
     }
+    //i think the damage is getting replicated fairly well, i think the only entity that isnt getting damage replicated is the base walls,
+    //i might want to rework damage so its more seamless like having a shared base class
 
     //this one is special and will use the network id
-    public void RequestSetBlockID(ulong netID, uint newID)
+    public void RequestSetEntityID(ulong netID, uint newID)
     {
-        RequestSetBlockIDServerRpc(netID, newID);
+        RequestSetEntityIDServerRpc(netID, newID);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RequestSetBlockIDServerRpc(ulong netID, uint newID)
+    private void RequestSetEntityIDServerRpc(ulong netID, uint newID)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(netID, out NetworkObject networkObject))
         {
             GameObject targetGo = networkObject.gameObject;
-            targetGo.GetComponent<Block>().id.Value = newID;
+            Block b = targetGo.GetComponent<Block>();
+            
+            if (b != null)
+                b.id.Value = newID;
+            else
+            {
+                BaseWall bw = targetGo.GetComponent<BaseWall>();
+                if (b != null)
+                    bw.id.Value = newID;
+            }
+
             Debug.Log($"Found object: {targetGo.name}, setting id to " + newID);
         }
         else
@@ -137,4 +134,9 @@ public class NetworkBlockManager : NetworkBehaviour
             Debug.LogWarning($"No network object found with ID: {netID}");
         }
     }
+
+
+
+    //theres a good chance i will need to do a bit of snapshot replication just to make sure things dont get too desynced
+    //but maybe later
 }

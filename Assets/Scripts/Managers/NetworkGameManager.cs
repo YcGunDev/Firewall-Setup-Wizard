@@ -16,7 +16,7 @@ public class NetworkGameManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        currentID.Value = 0;
+        //currentID.Value = 0;
     }
 
     public uint ClaimID()
@@ -30,6 +30,7 @@ public class NetworkGameManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void IncrementIDServerRpc()
     {
+        Debug.Log("claim id:" + currentID.Value);
         currentID.Value++;
     }
 

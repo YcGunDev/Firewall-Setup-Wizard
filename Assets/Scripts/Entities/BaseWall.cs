@@ -1,42 +1,60 @@
 using System.Collections;
+using System.Security.Claims;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.U2D;
 
-public class BaseWall : MonoBehaviour, ITakeDamage
+public class BaseWall : NetworkBehaviour
 {
-    public int health = 500;
-
-    [SerializeField] TextMeshProUGUI healthUI;
+    [Header("Attributes")]
+    public NetworkVariable<uint> id;
+    [Header("Components")]
+    [SerializeField] private NetworkHealthComponent healthComp;
     [SerializeField] SpriteRenderer sprite;
+    [Header("Effects")]
     [SerializeField] float shakeMagnitude = 2f;
     [SerializeField] float effectSpeed = 0.1f;
+
     private Color baseColour;
     private Vector3 basePos;
     private bool isEffect = false;
     private float shakeStrength = 1.0f;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+    }
+
     private void Awake()
     {
-        UpdateHPUI();
         baseColour = sprite.color;
         basePos = sprite.transform.localPosition;
+
+        if (!healthComp)
+            healthComp = GetComponent<NetworkHealthComponent>();
+
+        StartCoroutine(WaitForEntityManager());
+        StartCoroutine(WaitForGameManager());
     }
 
-    public void UpdateHPUI()
+    IEnumerator WaitForEntityManager()
     {
-        healthUI.text = health.ToString();
+        yield return new WaitUntil(() => EntityManager.instance != null);
+
+        EntityManager.instance.AddEntity(healthComp);
+        healthComp.OnDamagetaken.AddListener(OnDamageTriggered);
     }
 
-    public void TakeDamage(int damage)
+    IEnumerator WaitForGameManager()
     {
-        health = Mathf.Clamp(health - Mathf.Abs(damage), 0, 9999);
+        yield return new WaitUntil(() => NetworkGameManager.instance != null);
 
-        UpdateHPUI();
-        
-        if (health <= 0) OnDeath();
-        else TryDamageEffect(damage);
+        id.Value = NetworkGameManager.instance.ClaimID();
+        Debug.Log(gameObject.name + " id: " + id.Value);
+
     }
+
 
     public virtual void OnDeath() 
     { 
@@ -53,6 +71,11 @@ public class BaseWall : MonoBehaviour, ITakeDamage
                 break;
 
         }
+    }
+
+    public void OnDamageTriggered(int damage)
+    {
+        TryDamageEffect(damage);
     }
 
     void TryDamageEffect(int damage)

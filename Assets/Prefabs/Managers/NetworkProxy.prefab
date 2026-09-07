@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2179196512219344723}
   - component: {fileID: -7124748298016049558}
-  - component: {fileID: 8387691345320773635}
+  - component: {fileID: 6431339684833774457}
   m_Layer: 0
-  m_Name: NetworkBlockManager
+  m_Name: NetworkProxy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &8387691345320773635
+--- !u!114 &6431339684833774457
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,7 +68,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2776630680163354649}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 916caa0186151d94a8a62927f59642e4, type: 3}
+  m_Script: {fileID: 11500000, guid: 69099422a76246449b0a04c90bf952a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1

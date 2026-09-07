@@ -35,9 +35,9 @@ public class Move : MonoBehaviour
             for (int i = 0; i < selectTool.selectedBlocks.Count; i++)
             {
                 float speed = Mathf.Clamp(magnitude, 0.0f, 25.0f);
-                int health = (int)Mathf.Lerp((float)selectTool.selectedBlocks[i].health.Value, 1.0f, speed / 25.0f);
+                int health = (int)Mathf.Lerp((float)selectTool.selectedBlocks[i].GetComponent<NetworkHealthComponent>().health.Value, 1.0f, speed / 25.0f);
 
-                NetworkBlockManager.instance.RequestMoveBlock(speed, direction, health, selectTool.selectedBlocks[i].id.Value);
+                NetworkProxy.instance.RequestMoveBlock(speed, direction, health, selectTool.selectedBlocks[i].id.Value);
             }
 
             Destroy(currentArrowStart.gameObject);
@@ -81,10 +81,15 @@ public class Move : MonoBehaviour
 
             for(int i = 0; i < selectTool.selectedBlocks.Count; i++)
             {
+                if (selectTool.selectedBlocks[i] == null)
+                {
+                    selectTool.selectedBlocks.RemoveAt(i);
+                    continue;
+                }
                 float speed = Mathf.Clamp(magnitude, 0.0f, 25.0f);
-                int health = (int)Mathf.Lerp((float)selectTool.selectedBlocks[i].health.Value, 1.0f, speed / 25.0f);
+                int health = (int)Mathf.Lerp((float)selectTool.selectedBlocks[i].GetComponent<NetworkHealthComponent>().health.Value, 1.0f, speed / 25.0f);
 
-                NetworkBlockManager.instance.RequestMoveBlock(speed, direction, health, selectTool.selectedBlocks[i].id.Value);
+                NetworkProxy.instance.RequestMoveBlock(speed, direction, health, selectTool.selectedBlocks[i].id.Value);
             }
 
             Destroy(currentArrowStart.gameObject);

@@ -64,16 +64,16 @@ public class Select : MonoBehaviour
         if (isPressed && currentSelectBox == null)
         {
             //if (currentMousePos == Vector2.zero) selectStartPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            //else selectStartPos = currentMousePos;
+            selectStartPos = MouseTracker.instance.currentMousePos;
 
             //Debug.Log("huh");
             Vector3 screenToWorld = Camera.main.ScreenToWorldPoint(MouseTracker.instance.currentMousePos);
             Vector3 pos = new Vector3(screenToWorld.x, screenToWorld.y, 0.0f);
             currentSelectBox = Instantiate(selectBoxPrefab, pos, Quaternion.identity);
-            if (NetworkBlockManager.instance.gameObject.layer == 6)
+            if (NetworkProxy.instance.gameObject.layer == 6)
                 currentSelectBox.layer = 8;
 
-            else if (NetworkBlockManager.instance.gameObject.layer == 7)
+            else if (NetworkProxy.instance.gameObject.layer == 7)
                 currentSelectBox.layer = 9;
 
             currentSelectBox.transform.localScale = Vector3.zero;

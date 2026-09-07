@@ -3,29 +3,26 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class Block : NetworkBehaviour, ITakeDamage
+public class Block : NetworkBehaviour
 {
     //I'm personally not sold on this, but atm its the easiest method and its working, so go get em tiger
     [Header("Attributes")]
     public NetworkVariable<uint> id;
-    public NetworkVariable<int> health = new NetworkVariable<int>(0, 
-        NetworkVariableReadPermission.Everyone, 
-        NetworkVariableWritePermission.Owner);
+    public NetworkVariable<int> blockLayer;
+    
     public float speed;
     public Vector2 direction; //this will always be normalized
-
-    public NetworkVariable<int> blockLayer;
-
     [SerializeField] private float drag = 0.5f;
 
     //there is a chance i may want to replicate all these values, and not rely on unity's network transform, the motion is smooth but not perfect
 
-
     [Header("Components")]
     [SerializeField] Rigidbody2D rb;
-    [SerializeField] private TextMeshProUGUI healthUI;
+    
     [SerializeField] private SpriteRenderer sprite;
+    [SerializeField] private NetworkHealthComponent healthComp;
     public CollisionHandler sharedHandler = null;
 
     [Header("Effects")]
@@ -42,7 +39,6 @@ public class Block : NetworkBehaviour, ITakeDamage
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        health.OnValueChanged += OnHPChange; //health may need to be changed from a network variable //or ig not
         gameObject.layer = blockLayer.Value;
 
         if (gameObject.layer == 6)
@@ -57,35 +53,25 @@ public class Block : NetworkBehaviour, ITakeDamage
         basePos = sprite.transform.localPosition;
     }
 
-    //public override void OnNetworkDespawn()
-    //{
-    //    BlockManager.instance.RemoveBlock(this);
-    //}
-
     void Awake()
     {
-        if (health.Value <= 0) health.Value = 100;
-        //speed = 0.0f;
-        //direction = Vector2.zero;
+        if (!healthComp)
+            healthComp = GetComponent<NetworkHealthComponent>();
+
         if (!rb)
             rb = GetComponentInChildren<Rigidbody2D>();
-
-        if (!healthUI)
-            healthUI = GetComponentInChildren<TextMeshProUGUI>();
-        UpdateHPUI();
 
         if (!sprite)
             sprite = GetComponentInChildren<SpriteRenderer>();
 
+        EntityManager.instance.AddEntity(healthComp);
 
-        BlockManager.instance.AddBlock(this);
-
-        
+        healthComp.OnDamagetaken.AddListener(OnDamageTriggered);
     }
 
     private void Start()
     {
-        BlockManager.instance.ReplaceSpacer(id.Value);
+        EntityManager.instance.ReplaceSpacer(id.Value);
 
         //now the glaring problem is that there isnt a good way to test this on my own,
         //because loopback ping will be close to zero and I cant move that fast
@@ -94,55 +80,31 @@ public class Block : NetworkBehaviour, ITakeDamage
 
         List<Block> blackList = new List<Block>();
         blackList.Add(this);
-        if (BlockManager.instance.FindBlock(id.Value, blackList) != null)
+        if (EntityManager.instance.FindBlock(id.Value, blackList) != null)
         {
             //that means there is atleast 1 block that isnt this one that shares the same ID, so lets get a new one
-            NetworkBlockManager.instance.RequestSetBlockID(NetworkObjectId, NetworkGameManager.instance.ClaimID());
-            //id.Value = NetworkGameManager.instance.ClaimID();
+            NetworkProxy.instance.RequestSetEntityID(NetworkObjectId, NetworkGameManager.instance.ClaimID());
         }
     }
     public override void OnDestroy()
     {
         base.OnDestroy();
-        BlockManager.instance.RemoveBlock(this);
+        //EntityManager.instance.RemoveBlock(this);
+        EntityManager.instance.RemoveEntity(healthComp);
     }
-
-    //public void OnDestroy()
-    //{
-    //    BlockManager.instance.RemoveBlock(this);
-    //}
 
     void Update()
     {
         rb.linearVelocity = direction * speed;
-
 
         speed *= 1 - (drag * Time.deltaTime);
 
         if (speed <= 0.05f) speed = 0;
     }
 
-    public void TakeDamage(int damage)
+    public void OnDamageTriggered(int damage)
     {
-        health.Value -= Mathf.Abs(damage);
-        UpdateHPUI();
-        if (health.Value <= 0) Destroy(this.gameObject);
-        else TryDamageEffect(damage);
-    }
-
-    private void OnHPChange(int previousValue, int newValue)
-    {
-        if (health.Value <= 0) Destroy(this.gameObject);
-        else
-        {
-            TryDamageEffect(previousValue - newValue);
-            UpdateHPUI();
-        }
-    }
-
-    public void UpdateHPUI()
-    {
-        healthUI.text = health.Value.ToString();
+        TryDamageEffect(damage);
     }
 
     public void SpawnParticles()
@@ -238,12 +200,17 @@ public class Block : NetworkBehaviour, ITakeDamage
                 sharedHandler.B = otherBlock;
                 sharedHandler.ProcessCollision(0);
             }
+
             //its a wall, like a player's base wall
-            else
+            BaseWall otherWall = collision.gameObject.GetComponent<BaseWall>();
+            if (otherWall != null)
             {
                 //this will need to be changed to use the RPC, may need to rework the block manager to include these walls
-                itd.TakeDamage(health.Value);
-                TakeDamage(health.Value);
+                //itd.TakeDamage(healthComp.health.Value);
+                //healthComp.TakeDamage(healthComp.health.Value);
+
+                NetworkProxy.instance.RequestDamageEntity(otherWall.id.Value, healthComp.health.Value);
+                NetworkProxy.instance.RequestDamageEntity(id.Value, healthComp.health.Value);
             }
 
             CollideParticleEffect(pt, nm, go);
@@ -266,5 +233,7 @@ public class Block : NetworkBehaviour, ITakeDamage
         SpriteRenderer rend = gameObject.GetComponent<SpriteRenderer>();
         if (rend == null) rend = gameObject.GetComponentInChildren<SpriteRenderer>();
         if (rend != null) main.startColor = rend.color;
+
+        Debug.Log("particle");
     }
 }

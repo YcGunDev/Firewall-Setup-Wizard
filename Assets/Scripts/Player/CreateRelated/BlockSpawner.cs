@@ -20,7 +20,7 @@ public class BlockSpawner : MonoBehaviour
         tr_s = new Vector2(transform.position.x + transform.localScale.x * 0.525f, transform.position.y + transform.localScale.y * 0.525f);
         bl_s = new Vector2(transform.position.x - transform.localScale.x * 0.525f, transform.position.y - transform.localScale.y * 0.525f);
 
-        GameObject sa = NetworkBlockManager.instance.alliedSpawnArea;
+        GameObject sa = NetworkProxy.instance.alliedSpawnArea;
 
         Vector2 tr_sa = new Vector2(sa.transform.position.x + sa.transform.localScale.x * 0.525f, sa.transform.position.y + sa.transform.localScale.y * 0.525f);
         Vector2 bl_sa = new Vector2(sa.transform.position.x - sa.transform.localScale.x * 0.525f, sa.transform.position.y - sa.transform.localScale.y * 0.525f);
@@ -35,10 +35,11 @@ public class BlockSpawner : MonoBehaviour
 
 
 
-        foreach (Block block in BlockManager.instance.Blocks)
+        //foreach (Block block in EntityManager.instance.Blocks)
+        foreach (NetworkHealthComponent entity in EntityManager.instance.Entities)
         {
-            Vector2 tr_b = new Vector2(block.transform.position.x + block.transform.localScale.x * 0.525f, block.transform.position.y + block.transform.localScale.y * 0.525f);
-            Vector2 bl_b = new Vector2(block.transform.position.x - block.transform.localScale.x * 0.525f, block.transform.position.y - block.transform.localScale.y * 0.525f);
+            Vector2 tr_b = new Vector2(entity.transform.position.x + entity.transform.localScale.x * 0.525f, entity.transform.position.y + entity.transform.localScale.y * 0.525f);
+            Vector2 bl_b = new Vector2(entity.transform.position.x - entity.transform.localScale.x * 0.525f, entity.transform.position.y - entity.transform.localScale.y * 0.525f);
 
             //should try to use a karnough map to try and optimize this
 
@@ -74,7 +75,7 @@ public class BlockSpawner : MonoBehaviour
 
         if (!isOverlap)
         {
-            foreach (Spacer spacer in BlockManager.instance.Spacers)
+            foreach (Spacer spacer in EntityManager.instance.Spacers)
             {
                 Vector2 tr_b = new Vector2(spacer.transform.position.x + spacer.transform.localScale.x * 0.525f, spacer.transform.position.y + spacer.transform.localScale.y * 0.525f);
                 Vector2 bl_b = new Vector2(spacer.transform.position.x - spacer.transform.localScale.x * 0.525f, spacer.transform.position.y - spacer.transform.localScale.y * 0.525f);
@@ -120,8 +121,9 @@ public class BlockSpawner : MonoBehaviour
                 Spacer newSpacer = Instantiate(spacer, transform.position, transform.rotation);
                 //could use a failsafe
                 newSpacer.id = NetworkGameManager.instance.ClaimID();
+                
 
-                NetworkBlockManager.instance.RequestSpawnBlock(transform.position, transform.rotation, newSpacer.id);
+                NetworkProxy.instance.RequestSpawnBlock(transform.position, transform.rotation, newSpacer.id);
 
                 colliderTimer = colliderDelay;
             }

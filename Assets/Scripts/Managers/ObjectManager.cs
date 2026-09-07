@@ -11,15 +11,8 @@ public class ObjectManager : MonoBehaviour
     public GameObject spawnAreaP1;
     public GameObject spawnAreaP2;
 
-    
-
-
-
     private void Awake()
     {
         instance = this;
     }
-
-    
-
 }
